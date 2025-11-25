@@ -12,23 +12,52 @@ import {
   LogIn,
   Link,
   Activity,
-  Bot
+  Bot,
+  Globe,
+  Languages
 } from 'lucide-react';
+
+// Language options for translation
+const LANGUAGES = [
+  { code: 'en', name: 'English', flag: '🇺🇸' },
+  { code: 'hi', name: 'Hindi', flag: '🇮🇳' },
+  { code: 'or', name: 'Odia', flag: '🇮🇳' },
+  { code: 'kn', name: 'Kannada', flag: '🇮🇳' },
+  { code: 'ta', name: 'Tamil', flag: '🇮🇳' },
+  { code: 'te', name: 'Telugu', flag: '🇮🇳' },
+  { code: 'bn', name: 'Bengali', flag: '🇮🇳' },
+  { code: 'mr', name: 'Marathi', flag: '🇮🇳' },
+  { code: 'gu', name: 'Gujarati', flag: '🇮🇳' },
+  { code: 'fr', name: 'French', flag: '🇫🇷' },
+  { code: 'es', name: 'Spanish', flag: '🇪🇸' },
+];
 
 export default function LandingPage() {
   const [roomInput, setRoomInput] = useState('');
   const [joinType, setJoinType] = useState('doctor'); // determines join target
+  const [showTranslationSetup, setShowTranslationSetup] = useState(false);
+  const [enableTranslation, setEnableTranslation] = useState(false);
+  const [myLanguage, setMyLanguage] = useState('en');
+  const [otherLanguage, setOtherLanguage] = useState('hi');
   const navigate = useNavigate();
 
   // -------------------
   // Create room handler
   // -------------------
   const handleCreateRoom = () => {
+    if (enableTranslation && !showTranslationSetup) {
+      setShowTranslationSetup(true);
+      return;
+    }
+    
     const newRoomId = nanoid(6);
+    const translationParams = enableTranslation ? 
+      `?translation=true&myLang=${myLanguage}&otherLang=${otherLanguage}` : '';
+    
     if (joinType === 'ai') {
-      navigate(`/room/onlyai/${newRoomId}`);
+      navigate(`/room/onlyai/${newRoomId}${translationParams}`);
     } else {
-      navigate(`/room/${newRoomId}`);
+      navigate(`/room/${newRoomId}${translationParams}`);
     }
   };
 
@@ -36,6 +65,11 @@ export default function LandingPage() {
   // Join existing room
   // -------------------
   const handleJoinRoom = () => {
+    if (enableTranslation && !showTranslationSetup) {
+      setShowTranslationSetup(true);
+      return;
+    }
+    
     let roomId = roomInput.trim();
     if (roomId.includes('/room/')) {
       const parts = roomId.split('/room/');
@@ -43,23 +77,26 @@ export default function LandingPage() {
     }
 
     if (!roomId) {
-      alert('Please enter a valid Room ID or link');
+      alert('Please enter a valid Room ID or link');
       return;
     }
 
+    const translationParams = enableTranslation ? 
+      `?translation=true&myLang=${myLanguage}&otherLang=${otherLanguage}` : '';
+
     if (joinType === 'ai') {
-      navigate(`/room/onlyai/${roomId}`);
+      navigate(`/room/onlyai/${roomId}${translationParams}`);
     } else {
-      navigate(`/room/${roomId}`);
+      navigate(`/room/${roomId}${translationParams}`);
     }
   };
 
   // Features cards info
   const features = [
-    { icon: Shield, title: "Secure & HIPAA Compliant", description: "End‑to‑end encryption ensures patient privacy and data security" },
-    { icon: Video, title: "HD Video Consultations", description: "Crystal clear video quality for effective remote consultations" },
-    { icon: Activity, title: "Medical Records Integration", description: "Access patient history and vitals during consultations" },
-    { icon: Heart, title: "Digital Prescriptions", description: "Send electronic prescriptions directly to pharmacies" }
+    { icon: Shield, title: "Secure & HIPAA Compliant", description: "End‑to‑end encryption ensures patient privacy and data security" },
+    { icon: Video, title: "HD Video Consultations", description: "Crystal clear video quality for effective remote consultations" },
+    { icon: Languages, title: "Real-time Translation", description: "Speak in different languages with AI-powered live translation" },
+    { icon: Heart, title: "Digital Prescriptions", description: "Send electronic prescriptions directly to pharmacies" }
   ];
 
   return (
@@ -135,6 +172,66 @@ export default function LandingPage() {
                   <span>AI Room</span>
                 </div>
               </button>
+            </div>
+
+            {/* Real-time Translation Toggle */}
+            <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-2xl p-6 border border-purple-200">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl flex items-center justify-center">
+                    <Languages size={20} className="text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900">Real-time Translation</h3>
+                    <p className="text-sm text-gray-600">Speak in different languages seamlessly</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setEnableTranslation(!enableTranslation)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    enableTranslation ? 'bg-purple-600' : 'bg-gray-300'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      enableTranslation ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+              
+              {enableTranslation && (
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Your Language</label>
+                    <select
+                      value={myLanguage}
+                      onChange={(e) => setMyLanguage(e.target.value)}
+                      className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:border-purple-500"
+                    >
+                      {LANGUAGES.map((lang) => (
+                        <option key={lang.code} value={lang.code}>
+                          {lang.flag} {lang.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Other Person's Language</label>
+                    <select
+                      value={otherLanguage}
+                      onChange={(e) => setOtherLanguage(e.target.value)}
+                      className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:border-purple-500"
+                    >
+                      {LANGUAGES.map((lang) => (
+                        <option key={lang.code} value={lang.code}>
+                          {lang.flag} {lang.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Actions */}

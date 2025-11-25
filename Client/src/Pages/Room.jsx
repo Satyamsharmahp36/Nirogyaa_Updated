@@ -27,9 +27,12 @@ import {
   Shield,
   Stethoscope,
   Bot,
-  FileAudio
+  FileAudio,
+  Languages
 } from "lucide-react";
 import "./Room.css";
+import SimpleLanguageSelector from "../components/SimpleLanguageSelector";
+import { useSimpleTranslationFallback } from "../hooks/useSimpleTranslationFallback";
 
 const baseUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 const socket = io(baseUrl, {
@@ -104,6 +107,21 @@ export default function MedicalRoom() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Translation state
+  const [myPreferredLanguage, setMyPreferredLanguage] = useState('off');
+  const [shouldMuteRemoteAudio, setShouldMuteRemoteAudio] = useState(false);
+
+  // Initialize simple translation fallback
+  const {
+    isListening,
+    detectedLanguage,
+    translationHistory,
+    error: translationError,
+    startListening,
+    stopListening,
+    clearHistory
+  } = useSimpleTranslationFallback(myPreferredLanguage);
+
   // Core video functionality refs
   const localVideoRef = useRef();
   const localStream = useRef(null);
@@ -115,6 +133,20 @@ export default function MedicalRoom() {
   // Gemini API Configuration
   const GEMINI_API_KEY = "AIzaSyDCtWQnbvdsY7JVNapc0vJxpl8UNN76iz0";
   const GEMINI_WS_URL = "wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent";
+
+  // Mute remote audio when translation is enabled
+  useEffect(() => {
+    const shouldMute = myPreferredLanguage !== 'off';
+    setShouldMuteRemoteAudio(shouldMute);
+    
+    // Mute/unmute all remote video elements
+    Object.values(remoteVideoRefs.current).forEach(videoRef => {
+      if (videoRef && videoRef.current) {
+        videoRef.current.muted = shouldMute;
+        console.log(`Remote audio ${shouldMute ? 'muted' : 'unmuted'} for translation`);
+      }
+    });
+  }, [myPreferredLanguage]);
 
   // Audio level detection setup - FIXED
   const setupAudioAnalyser = useCallback((userId, stream) => {
@@ -996,6 +1028,8 @@ const getAIVoiceResponseWithRetry = async (userMessage, retryCount = 0) => {
       if (event.streams && event.streams[0]) {
         if (remoteVideoRefs.current[remoteUserId]) {
           remoteVideoRefs.current[remoteUserId].srcObject = event.streams[0];
+          // Mute remote audio if translation is enabled
+          remoteVideoRefs.current[remoteUserId].muted = shouldMuteRemoteAudio;
           setupAudioAnalyser(remoteUserId, event.streams[0]);
         }
         const videoTrack = event.streams[0].getVideoTracks()[0];
@@ -1401,6 +1435,44 @@ const getAIVoiceResponseWithRetry = async (userMessage, retryCount = 0) => {
                   {isDoctor ? "👨‍⚕️ DOCTOR" : "👤 PATIENT"}
                 </div>
               )}
+              
+              {/* Language Selector */}
+              <SimpleLanguageSelector
+                selectedLanguage={myPreferredLanguage}
+                onLanguageChange={setMyPreferredLanguage}
+                className="ml-4"
+                label="Listen in"
+                isListening={isListening}
+                error={translationError}
+              />
+              
+              {/* Translation Button */}
+              {myPreferredLanguage !== 'off' && (
+                <button
+                  onClick={isListening ? stopListening : startListening}
+                  disabled={!!translationError}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    padding: '0.5rem 1rem',
+                    background: isListening 
+                      ? 'rgba(239, 68, 68, 0.3)' 
+                      : 'rgba(16, 185, 129, 0.3)',
+                    border: '1px solid rgba(255,255,255,0.3)',
+                    borderRadius: '1rem',
+                    color: 'white',
+                    fontSize: '0.75rem',
+                    fontWeight: '600',
+                    cursor: translationError ? 'not-allowed' : 'pointer',
+                    backdropFilter: 'blur(10px)',
+                    marginLeft: '0.5rem',
+                    opacity: translationError ? 0.5 : 1
+                  }}
+                >
+                  {isListening ? '⏹️ Stop' : '🎤 Listen'}
+                </button>
+              )}
             </div>
           </div>
           
@@ -1658,9 +1730,14 @@ const getAIVoiceResponseWithRetry = async (userMessage, retryCount = 0) => {
                 </div>
               )}
               <video
-                ref={(el) => (remoteVideoRefs.current[userId] = el)}
+                ref={(el) => {
+                  remoteVideoRefs.current[userId] = el;
+                  // Mute if translation is enabled
+                  if (el) el.muted = shouldMuteRemoteAudio;
+                }}
                 autoPlay
                 playsInline
+                muted={shouldMuteRemoteAudio}
                 className={getVideoClass(userId)}
                 style={{
                   display: remoteVideoStatus[userId] !== false ? "block" : "none",
@@ -2061,6 +2138,7 @@ const getAIVoiceResponseWithRetry = async (userMessage, retryCount = 0) => {
                   </div>
                 </div>
               )}
+
             </div>
           </div>
         )}

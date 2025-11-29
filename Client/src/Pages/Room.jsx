@@ -1449,29 +1449,53 @@ const getAIVoiceResponseWithRetry = async (userMessage, retryCount = 0) => {
               
               {/* Translation Controls */}
               {myPreferredLanguage !== 'off' && (
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <div style={{ display: 'flex', gap: '0.625rem' }}>
                   <button
                     onClick={isListening ? stopListening : startListening}
                     disabled={!!translationError}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
+                      justifyContent: 'center',
                       gap: '0.5rem',
-                      padding: '0.5rem 1rem',
+                      padding: '0.625rem 1.25rem',
+                      minWidth: '120px',
+                      height: '40px',
                       background: isListening 
-                        ? 'rgba(239, 68, 68, 0.3)' 
-                        : 'rgba(16, 185, 129, 0.3)',
-                      border: '1px solid rgba(255,255,255,0.3)',
-                      borderRadius: '1rem',
+                        ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
+                        : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                      border: 'none',
+                      borderRadius: '10px',
                       color: 'white',
-                      fontSize: '0.75rem',
+                      fontSize: '0.8rem',
                       fontWeight: '600',
                       cursor: translationError ? 'not-allowed' : 'pointer',
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      boxShadow: isListening 
+                        ? '0 3px 15px rgba(239, 68, 68, 0.4)'
+                        : '0 3px 15px rgba(16, 185, 129, 0.4)',
                       backdropFilter: 'blur(10px)',
-                      opacity: translationError ? 0.5 : 1
+                      opacity: translationError ? 0.5 : 1,
+                      transform: 'translateY(0)'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!translationError) {
+                        e.target.style.transform = 'translateY(-1px)';
+                        e.target.style.boxShadow = isListening 
+                          ? '0 4px 20px rgba(239, 68, 68, 0.5)'
+                          : '0 4px 20px rgba(16, 185, 129, 0.5)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!translationError) {
+                        e.target.style.transform = 'translateY(0)';
+                        e.target.style.boxShadow = isListening 
+                          ? '0 3px 15px rgba(239, 68, 68, 0.4)'
+                          : '0 3px 15px rgba(16, 185, 129, 0.4)';
+                      }
                     }}
                   >
-                    {isListening ? '⏹️ Stop' : '🎤 Listen'}
+                    {isListening ? 'Stop' : 'Listen'}
                   </button>
                   
                   <button
@@ -1479,77 +1503,164 @@ const getAIVoiceResponseWithRetry = async (userMessage, retryCount = 0) => {
                     style={{
                       display: 'flex',
                       alignItems: 'center',
+                      justifyContent: 'center',
                       gap: '0.5rem',
-                      padding: '0.5rem 1rem',
+                      padding: '0.625rem 1.25rem',
+                      minWidth: '120px',
+                      height: '40px',
                       background: showCaptions 
-                        ? 'rgba(59, 130, 246, 0.3)' 
-                        : 'rgba(107, 114, 128, 0.3)',
-                      border: '1px solid rgba(255,255,255,0.3)',
-                      borderRadius: '1rem',
+                        ? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'
+                        : 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)',
+                      border: 'none',
+                      borderRadius: '10px',
                       color: 'white',
-                      fontSize: '0.75rem',
+                      fontSize: '0.8rem',
                       fontWeight: '600',
                       cursor: 'pointer',
-                      backdropFilter: 'blur(10px)'
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      boxShadow: showCaptions 
+                        ? '0 3px 15px rgba(59, 130, 246, 0.4)'
+                        : '0 3px 15px rgba(107, 114, 128, 0.4)',
+                      backdropFilter: 'blur(10px)',
+                      transform: 'translateY(0)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.transform = 'translateY(-1px)';
+                      e.target.style.boxShadow = showCaptions 
+                        ? '0 4px 20px rgba(59, 130, 246, 0.5)'
+                        : '0 4px 20px rgba(107, 114, 128, 0.5)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.transform = 'translateY(0)';
+                      e.target.style.boxShadow = showCaptions 
+                        ? '0 3px 15px rgba(59, 130, 246, 0.4)'
+                        : '0 3px 15px rgba(107, 114, 128, 0.4)';
                     }}
                   >
-                    {showCaptions ? '💬 Hide CC' : '💬 Show CC'}
+                    {showCaptions ? 'Hide CC' : 'Show CC'}
                   </button>
                 </div>
               )}
             </div>
           </div>
           
-          {/* AI Bot Toggle Button (Only in normal mode) */}
-          {!isAIOnlyMode && (
-            <button
-              onClick={toggleAITranscriptionBot}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                padding: '0.75rem 1.5rem',
-                background: isAIBotActive 
-                  ? 'rgba(239, 68, 68, 0.3)'
-                  : 'rgba(16, 185, 129, 0.3)',
-                border: '2px solid rgba(255,255,255,0.3)',
-                borderRadius: '1rem',
-                color: 'white',
-                fontSize: '0.875rem',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                backdropFilter: 'blur(10px)'
-              }}
-            >
-              <Bot size={16} />
-              <span>{isAIBotActive ? '🔴 Stop AI Bot' : '🟢 Start AI Bot'}</span>
-            </button>
-          )}
+          {/* Header Action Buttons */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem'
+          }}>
+            {/* AI Bot Toggle Button (Only in normal mode) */}
+            {!isAIOnlyMode && (
+              <button
+                onClick={toggleAITranscriptionBot}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.625rem',
+                  padding: '0.875rem 1.75rem',
+                  minWidth: '160px',
+                  height: '48px',
+                  background: isAIBotActive 
+                    ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
+                    : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  border: 'none',
+                  borderRadius: '12px',
+                  color: 'white',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  boxShadow: isAIBotActive 
+                    ? '0 4px 20px rgba(239, 68, 68, 0.4), 0 2px 8px rgba(0, 0, 0, 0.1)'
+                    : '0 4px 20px rgba(16, 185, 129, 0.4), 0 2px 8px rgba(0, 0, 0, 0.1)',
+                  backdropFilter: 'blur(10px)',
+                  transform: 'translateY(0)',
+                  ':hover': {
+                    transform: 'translateY(-2px)',
+                    boxShadow: isAIBotActive 
+                      ? '0 6px 25px rgba(239, 68, 68, 0.5), 0 4px 12px rgba(0, 0, 0, 0.15)'
+                      : '0 6px 25px rgba(16, 185, 129, 0.5), 0 4px 12px rgba(0, 0, 0, 0.15)'
+                  }
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = isAIBotActive 
+                    ? '0 6px 25px rgba(239, 68, 68, 0.5), 0 4px 12px rgba(0, 0, 0, 0.15)'
+                    : '0 6px 25px rgba(16, 185, 129, 0.5), 0 4px 12px rgba(0, 0, 0, 0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = isAIBotActive 
+                    ? '0 4px 20px rgba(239, 68, 68, 0.4), 0 2px 8px rgba(0, 0, 0, 0.1)'
+                    : '0 4px 20px rgba(16, 185, 129, 0.4), 0 2px 8px rgba(0, 0, 0, 0.1)';
+                }}
+              >
+                <Bot size={18} />
+                <span>{isAIBotActive ? 'Stop AI Bot' : 'Start AI Bot'}</span>
+                <div style={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  backgroundColor: isAIBotActive ? '#fca5a5' : '#86efac',
+                  animation: isAIBotActive ? 'pulse 2s infinite' : 'none'
+                }} />
+              </button>
+            )}
 
-          {isDoctor && !isAIOnlyMode && (
-            <button
-              onClick={() => setShowDoctorPanel(!showDoctorPanel)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                padding: '0.75rem 1.5rem',
-                background: 'rgba(255,255,255,0.25)',
-                border: '2px solid rgba(255,255,255,0.3)',
-                borderRadius: '1rem',
-                color: 'white',
-                fontSize: '0.875rem',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                backdropFilter: 'blur(10px)'
-              }}
-            >
-              {showDoctorPanel ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
-              <span>🩺 Medical Panel</span>
-            </button>
-          )}
+            {/* Medical Panel Toggle Button */}
+            {isDoctor && !isAIOnlyMode && (
+              <button
+                onClick={() => setShowDoctorPanel(!showDoctorPanel)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.625rem',
+                  padding: '0.875rem 1.75rem',
+                  minWidth: '160px',
+                  height: '48px',
+                  background: showDoctorPanel 
+                    ? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'
+                    : 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+                  border: 'none',
+                  borderRadius: '12px',
+                  color: 'white',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  boxShadow: showDoctorPanel 
+                    ? '0 4px 20px rgba(59, 130, 246, 0.4), 0 2px 8px rgba(0, 0, 0, 0.1)'
+                    : '0 4px 20px rgba(99, 102, 241, 0.4), 0 2px 8px rgba(0, 0, 0, 0.1)',
+                  backdropFilter: 'blur(10px)',
+                  transform: 'translateY(0)'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = showDoctorPanel 
+                    ? '0 6px 25px rgba(59, 130, 246, 0.5), 0 4px 12px rgba(0, 0, 0, 0.15)'
+                    : '0 6px 25px rgba(99, 102, 241, 0.5), 0 4px 12px rgba(0, 0, 0, 0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = showDoctorPanel 
+                    ? '0 4px 20px rgba(59, 130, 246, 0.4), 0 2px 8px rgba(0, 0, 0, 0.1)'
+                    : '0 4px 20px rgba(99, 102, 241, 0.4), 0 2px 8px rgba(0, 0, 0, 0.1)';
+                }}
+              >
+                {showDoctorPanel ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+                <span>Medical Panel</span>
+                <div style={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  backgroundColor: showDoctorPanel ? '#93c5fd' : '#c7d2fe'
+                }} />
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -2249,20 +2360,7 @@ const getAIVoiceResponseWithRetry = async (userMessage, retryCount = 0) => {
                       gap: '1.5rem',
                       marginBottom: '1.5rem'
                     }}>
-                      <div style={{
-                        width: '80px',
-                        height: '80px',
-                        background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-                        borderRadius: '50%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: 'white',
-                        fontSize: '2rem',
-                        fontWeight: 'bold'
-                      }}>
-                        {patientInfo?.name?.charAt(0) || 'J'}
-                      </div>
+
                       <div>
                         <h4 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '0.5rem' }}>
                           {patientInfo?.name || 'Swasti Mohanty'}
@@ -2289,7 +2387,7 @@ const getAIVoiceResponseWithRetry = async (userMessage, retryCount = 0) => {
                           <Calendar size={16} color="#22c55e" />
                           <span style={{ fontWeight: '600', color: '#15803d' }}>Date of Birth</span>
                         </div>
-                        <p style={{ color: '#374151', margin: 0 }}>{patientInfo?.dob || 'January 15, 1990'}</p>
+                        <p style={{ color: '#374151', margin: 0 }}>{patientInfo?.dob || 'July 30, 2005'}</p>
                       </div>
                       
                       <div style={{ padding: '1rem', background: '#fef3c7', borderRadius: '0.75rem', border: '1px solid #fde68a' }}>
@@ -2297,7 +2395,7 @@ const getAIVoiceResponseWithRetry = async (userMessage, retryCount = 0) => {
                           <MapPin size={16} color="#f59e0b" />
                           <span style={{ fontWeight: '600', color: '#92400e' }}>Address</span>
                         </div>
-                        <p style={{ color: '#374151', margin: 0 }}>123 Main Street, New York, NY 10001</p>
+                        <p style={{ color: '#374151', margin: 0 }}>Chitkara University Baddi , H.P</p>
                       </div>
                     </div>
                   </div>
@@ -2554,7 +2652,7 @@ const getAIVoiceResponseWithRetry = async (userMessage, retryCount = 0) => {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1.5rem' }}>
                       <div>
                         <h4 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '0.5rem' }}>
-                          Dr. Sarah Johnson, MD
+                          Dr. Aryan Sharma
                         </h4>
                         <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>
                           Internal Medicine Specialist<br/>
@@ -2576,7 +2674,7 @@ const getAIVoiceResponseWithRetry = async (userMessage, retryCount = 0) => {
                         <strong>Name:</strong> {patientInfo?.name || 'Swasti Mohanty'}<br/>
                         <strong>Age:</strong> {patientInfo?.age || '20'} years<br/>
                         <strong>MRN:</strong> {patientInfo?.mrn?.substring(0, 8) || 'MRN12345'}<br/>
-                        <strong>Date of Birth:</strong> {patientInfo?.dob || 'January 15, 1990'}
+                        <strong>Date of Birth:</strong> {patientInfo?.dob || 'July 30, 2005'}
                       </div>
                     </div>
                   </div>
@@ -2785,7 +2883,7 @@ const getAIVoiceResponseWithRetry = async (userMessage, retryCount = 0) => {
                       <button
                         onClick={() => {
                           const prescriptionData = {
-                            doctor: 'Dr. Sarah Johnson, MD',
+                            doctor: 'Dr. Aryan Sharma',
                             patient: patientInfo?.name || 'Swasti Mohanty',
                             date: new Date().toLocaleDateString(),
                             medications: 3
@@ -2850,7 +2948,7 @@ const getAIVoiceResponseWithRetry = async (userMessage, retryCount = 0) => {
                     }}>
                       <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
                         🔒 This prescription is digitally signed and encrypted for security.<br/>
-                        Electronic signature: Dr. Sarah Johnson, MD - {new Date().toLocaleString()}
+                        Electronic signature: Dr. Aryan Sharma - {new Date().toLocaleString()}
                       </div>
                     </div>
                   </div>

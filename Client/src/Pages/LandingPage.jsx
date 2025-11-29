@@ -4,72 +4,28 @@ import { nanoid } from 'nanoid';
 import { 
   Video, 
   Users, 
-  Shield, 
   Stethoscope, 
   Heart, 
   Calendar,
   Plus,
   LogIn,
   Link,
-  Activity,
-  Bot,
-  Globe,
-  Languages
+  Activity
 } from 'lucide-react';
 
-// Language options for translation
-const LANGUAGES = [
-  { code: 'en', name: 'English', flag: '🇺🇸' },
-  { code: 'hi', name: 'Hindi', flag: '🇮🇳' },
-  { code: 'or', name: 'Odia', flag: '🇮🇳' },
-  { code: 'kn', name: 'Kannada', flag: '🇮🇳' },
-  { code: 'ta', name: 'Tamil', flag: '🇮🇳' },
-  { code: 'te', name: 'Telugu', flag: '🇮🇳' },
-  { code: 'bn', name: 'Bengali', flag: '🇮🇳' },
-  { code: 'mr', name: 'Marathi', flag: '🇮🇳' },
-  { code: 'gu', name: 'Gujarati', flag: '🇮🇳' },
-  { code: 'fr', name: 'French', flag: '🇫🇷' },
-  { code: 'es', name: 'Spanish', flag: '🇪🇸' },
-];
 
 export default function LandingPage() {
   const [roomInput, setRoomInput] = useState('');
-  const [joinType, setJoinType] = useState('doctor'); // determines join target
-  const [showTranslationSetup, setShowTranslationSetup] = useState(false);
-  const [enableTranslation, setEnableTranslation] = useState(false);
-  const [myLanguage, setMyLanguage] = useState('en');
-  const [otherLanguage, setOtherLanguage] = useState('hi');
   const navigate = useNavigate();
 
-  // -------------------
   // Create room handler
-  // -------------------
   const handleCreateRoom = () => {
-    if (enableTranslation && !showTranslationSetup) {
-      setShowTranslationSetup(true);
-      return;
-    }
-    
     const newRoomId = nanoid(6);
-    const translationParams = enableTranslation ? 
-      `?translation=true&myLang=${myLanguage}&otherLang=${otherLanguage}` : '';
-    
-    if (joinType === 'ai') {
-      navigate(`/room/onlyai/${newRoomId}${translationParams}`);
-    } else {
-      navigate(`/room/${newRoomId}${translationParams}`);
-    }
+    navigate(`/room/${newRoomId}`);
   };
 
-  // -------------------
   // Join existing room
-  // -------------------
   const handleJoinRoom = () => {
-    if (enableTranslation && !showTranslationSetup) {
-      setShowTranslationSetup(true);
-      return;
-    }
-    
     let roomId = roomInput.trim();
     if (roomId.includes('/room/')) {
       const parts = roomId.split('/room/');
@@ -81,22 +37,15 @@ export default function LandingPage() {
       return;
     }
 
-    const translationParams = enableTranslation ? 
-      `?translation=true&myLang=${myLanguage}&otherLang=${otherLanguage}` : '';
-
-    if (joinType === 'ai') {
-      navigate(`/room/onlyai/${roomId}${translationParams}`);
-    } else {
-      navigate(`/room/${roomId}${translationParams}`);
-    }
+    navigate(`/room/${roomId}`);
   };
 
   // Features cards info
   const features = [
-    { icon: Shield, title: "Secure & HIPAA Compliant", description: "End‑to‑end encryption ensures patient privacy and data security" },
     { icon: Video, title: "HD Video Consultations", description: "Crystal clear video quality for effective remote consultations" },
-    { icon: Languages, title: "Real-time Translation", description: "Speak in different languages with AI-powered live translation" },
-    { icon: Heart, title: "Digital Prescriptions", description: "Send electronic prescriptions directly to pharmacies" }
+    { icon: Heart, title: "Digital Prescriptions", description: "Send electronic prescriptions directly to pharmacies" },
+    { icon: Users, title: "Multi-participant Rooms", description: "Support for multiple participants in consultation rooms" },
+    { icon: Activity, title: "Real-time Monitoring", description: "Live session monitoring and health data tracking" }
   ];
 
   return (
@@ -132,116 +81,26 @@ export default function LandingPage() {
                 <Heart size={16} /> Healthcare Made Simple
               </div>
               <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 leading-tight">
-                Start Your 
+                Connect with 
                 <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Consultation
+                  Healthcare
                 </span>
-                {' '}Instantly
+                {' '}Professionals
               </h1>
               <p className="text-xl text-gray-600">
-                Choose between a human doctor or our AI health assistant for secure, HIPAA‑compliant virtual consultations.
+                Secure, professional telemedicine platform for virtual healthcare consultations and medical services.
               </p>
             </div>
 
-            {/* Session selector */}
-            <div className="flex flex-col sm:flex-row gap-4 mt-8">
-              <button
-                onClick={() => setJoinType('doctor')}
-                className={`flex-1 px-6 py-4 rounded-2xl border-2 font-semibold transition-all ${
-                  joinType === 'doctor'
-                    ? 'border-blue-600 bg-blue-50 text-blue-700'
-                    : 'border-gray-200 bg-white hover:border-blue-300 text-gray-700'
-                }`}
-              >
-                <div className="flex flex-col items-center gap-2">
-                  <Stethoscope size={28} />
-                  <span>Doctor Room</span>
-                </div>
-              </button>
-
-              <button
-                onClick={() => setJoinType('ai')}
-                className={`flex-1 px-6 py-4 rounded-2xl border-2 font-semibold transition-all ${
-                  joinType === 'ai'
-                    ? 'border-purple-600 bg-purple-50 text-purple-700'
-                    : 'border-gray-200 bg-white hover:border-purple-300 text-gray-700'
-                }`}
-              >
-                <div className="flex flex-col items-center gap-2">
-                  <Bot size={28} />
-                  <span>AI Room</span>
-                </div>
-              </button>
-            </div>
-
-            {/* Real-time Translation Toggle */}
-            <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-2xl p-6 border border-purple-200">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl flex items-center justify-center">
-                    <Languages size={20} className="text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-900">Real-time Translation</h3>
-                    <p className="text-sm text-gray-600">Speak in different languages seamlessly</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setEnableTranslation(!enableTranslation)}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    enableTranslation ? 'bg-purple-600' : 'bg-gray-300'
-                  }`}
-                >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      enableTranslation ? 'translate-x-6' : 'translate-x-1'
-                    }`}
-                  />
-                </button>
-              </div>
-              
-              {enableTranslation && (
-                <div className="grid grid-cols-2 gap-4 mt-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Your Language</label>
-                    <select
-                      value={myLanguage}
-                      onChange={(e) => setMyLanguage(e.target.value)}
-                      className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:border-purple-500"
-                    >
-                      {LANGUAGES.map((lang) => (
-                        <option key={lang.code} value={lang.code}>
-                          {lang.flag} {lang.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Other Person's Language</label>
-                    <select
-                      value={otherLanguage}
-                      onChange={(e) => setOtherLanguage(e.target.value)}
-                      className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:border-purple-500"
-                    >
-                      {LANGUAGES.map((lang) => (
-                        <option key={lang.code} value={lang.code}>
-                          {lang.flag} {lang.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              )}
-            </div>
 
             {/* Actions */}
-            <div className="space-y-4 mt-6">
+            <div className="space-y-6 mt-8">
               <button
                 onClick={handleCreateRoom}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-4 rounded-2xl text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
               >
                 <Plus size={24} />
-                Start New Consultation
+                Start New Room
               </button>
 
               <div className="flex items-center gap-4">
@@ -256,7 +115,7 @@ export default function LandingPage() {
                   <input
                     value={roomInput}
                     onChange={(e) => setRoomInput(e.target.value)}
-                    placeholder="Enter Room ID or Link"
+                    placeholder="Enter Room ID or Link"
                     className="w-full pl-12 pr-4 py-4 bg-white border-2 border-gray-200 rounded-2xl text-lg focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all"
                     onKeyPress={(e) => e.key === 'Enter' && handleJoinRoom()}
                   />
@@ -266,7 +125,7 @@ export default function LandingPage() {
                   className="inline-flex items-center justify-center gap-2 bg-white border-2 border-gray-200 hover:border-blue-500 text-gray-700 hover:text-blue-600 px-6 py-4 rounded-2xl text-lg font-semibold transition-all hover:bg-blue-50"
                 >
                   <LogIn size={20} />
-                  Join {joinType === 'ai' ? 'AI' : 'Doctor'} Room
+                  Join Room
                 </button>
               </div>
             </div>
@@ -285,9 +144,9 @@ export default function LandingPage() {
                 </div>
               </div>
               <ul className="space-y-2 text-gray-700">
-                <li>1️⃣ Select Doctor or AI session type</li>
-                <li>2️⃣ Click “Start New Consultation”</li>
-                <li>3️⃣ Share room link and start secure consultation</li>
+                <li>1️⃣ Click "Start New Room" to create a session</li>
+                <li>2️⃣ Share the room link with participants</li>
+                <li>3️⃣ Begin your secure video consultation</li>
               </ul>
             </div>
 

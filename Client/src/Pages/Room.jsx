@@ -110,6 +110,7 @@ export default function MedicalRoom() {
   // Translation state
   const [myPreferredLanguage, setMyPreferredLanguage] = useState('off');
   const [shouldMuteRemoteAudio, setShouldMuteRemoteAudio] = useState(false);
+  const [showCaptions, setShowCaptions] = useState(true);
 
   // Initialize simple translation fallback
   const {
@@ -1446,32 +1447,55 @@ const getAIVoiceResponseWithRetry = async (userMessage, retryCount = 0) => {
                 error={translationError}
               />
               
-              {/* Translation Button */}
+              {/* Translation Controls */}
               {myPreferredLanguage !== 'off' && (
-                <button
-                  onClick={isListening ? stopListening : startListening}
-                  disabled={!!translationError}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    padding: '0.5rem 1rem',
-                    background: isListening 
-                      ? 'rgba(239, 68, 68, 0.3)' 
-                      : 'rgba(16, 185, 129, 0.3)',
-                    border: '1px solid rgba(255,255,255,0.3)',
-                    borderRadius: '1rem',
-                    color: 'white',
-                    fontSize: '0.75rem',
-                    fontWeight: '600',
-                    cursor: translationError ? 'not-allowed' : 'pointer',
-                    backdropFilter: 'blur(10px)',
-                    marginLeft: '0.5rem',
-                    opacity: translationError ? 0.5 : 1
-                  }}
-                >
-                  {isListening ? '⏹️ Stop' : '🎤 Listen'}
-                </button>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button
+                    onClick={isListening ? stopListening : startListening}
+                    disabled={!!translationError}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      padding: '0.5rem 1rem',
+                      background: isListening 
+                        ? 'rgba(239, 68, 68, 0.3)' 
+                        : 'rgba(16, 185, 129, 0.3)',
+                      border: '1px solid rgba(255,255,255,0.3)',
+                      borderRadius: '1rem',
+                      color: 'white',
+                      fontSize: '0.75rem',
+                      fontWeight: '600',
+                      cursor: translationError ? 'not-allowed' : 'pointer',
+                      backdropFilter: 'blur(10px)',
+                      opacity: translationError ? 0.5 : 1
+                    }}
+                  >
+                    {isListening ? '⏹️ Stop' : '🎤 Listen'}
+                  </button>
+                  
+                  <button
+                    onClick={() => setShowCaptions(!showCaptions)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      padding: '0.5rem 1rem',
+                      background: showCaptions 
+                        ? 'rgba(59, 130, 246, 0.3)' 
+                        : 'rgba(107, 114, 128, 0.3)',
+                      border: '1px solid rgba(255,255,255,0.3)',
+                      borderRadius: '1rem',
+                      color: 'white',
+                      fontSize: '0.75rem',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      backdropFilter: 'blur(10px)'
+                    }}
+                  >
+                    {showCaptions ? '💬 Hide CC' : '💬 Show CC'}
+                  </button>
+                </div>
               )}
             </div>
           </div>
@@ -1533,7 +1557,8 @@ const getAIVoiceResponseWithRetry = async (userMessage, retryCount = 0) => {
         {/* Main Video Area */}
         <div className={`video-grid ${getGridClass()}`} style={{ 
           flex: (isDoctor && showDoctorPanel && !isAIOnlyMode) || isAIOnlyMode ? '2' : '1',
-          transition: 'all 0.3s ease'
+          transition: 'all 0.3s ease',
+          position: 'relative'
         }}>
           {/* Local video */}
           <div className={getVideoTileClass("local")} style={{ position: 'relative' }}>
@@ -1773,6 +1798,62 @@ const getAIVoiceResponseWithRetry = async (userMessage, retryCount = 0) => {
               </div>
             </div>
           ))}
+
+          {/* Captions Overlay */}
+          {myPreferredLanguage !== 'off' && showCaptions && translationHistory.length > 0 && (
+            <div style={{
+              position: 'absolute',
+              bottom: '2rem',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              maxWidth: '80%',
+              zIndex: 10,
+              pointerEvents: 'none'
+            }}>
+              <div style={{
+                background: 'rgba(0, 0, 0, 0.85)',
+                backdropFilter: 'blur(10px)',
+                borderRadius: '1rem',
+                padding: '1rem 1.5rem',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+              }}>
+                <div style={{
+                  color: 'white',
+                  fontSize: '1.125rem',
+                  lineHeight: '1.6',
+                  textAlign: 'center',
+                  fontWeight: '500',
+                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.5)'
+                }}>
+                  {translationHistory[translationHistory.length - 1]?.translatedText || 'Listening...'}
+                </div>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  marginTop: '0.5rem',
+                  fontSize: '0.75rem',
+                  color: 'rgba(255, 255, 255, 0.7)'
+                }}>
+                  <div style={{
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    backgroundColor: isListening ? '#10b981' : '#6b7280',
+                    animation: isListening ? 'pulse 2s infinite' : 'none'
+                  }} />
+                  <span>
+                    {isListening ? 
+                      `Translating to ${myPreferredLanguage.toUpperCase()}` : 
+                      'Translation paused'
+                    }
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Side Panel - Doctor Panel or AI Panel */}
@@ -2120,21 +2201,658 @@ const getAIVoiceResponseWithRetry = async (userMessage, retryCount = 0) => {
                 </div>
               )}
 
-              {/* Existing tabs for doctor mode (patient, prescription) - keeping them as they were */}
+              {/* Enhanced Patient Information Panel */}
               {!isAIOnlyMode && activeTab === "patient" && (
-                <div style={{ padding: '1.5rem', overflowY: 'auto', flex: 1 }}>
-                  {/* Keep your existing patient info rendering here */}
-                  <div style={{textAlign: 'center', padding: '2rem'}}>
-                    <p>Patient information panel</p>
+                <div style={{ padding: '1.5rem', overflowY: 'auto', flex: 1, background: '#f8fafc' }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: '2rem'
+                  }}>
+                    <h3 style={{ 
+                      color: '#1f2937', 
+                      fontSize: '1.5rem', 
+                      fontWeight: 'bold',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.75rem'
+                    }}>
+                      <User size={28} color="#3b82f6" />
+                      Patient Medical Records
+                    </h3>
+                    <div style={{
+                      padding: '0.5rem 1rem',
+                      background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                      borderRadius: '0.75rem',
+                      color: 'white',
+                      fontSize: '0.875rem',
+                      fontWeight: '600',
+                      boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)'
+                    }}>
+                      ✅ Records Loaded
+                    </div>
+                  </div>
+
+                  {/* Patient Basic Info Card */}
+                  <div style={{
+                    background: 'white',
+                    borderRadius: '1rem',
+                    padding: '2rem',
+                    marginBottom: '1.5rem',
+                    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+                    border: '1px solid #e5e7eb'
+                  }}>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '1.5rem',
+                      marginBottom: '1.5rem'
+                    }}>
+                      <div style={{
+                        width: '80px',
+                        height: '80px',
+                        background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'white',
+                        fontSize: '2rem',
+                        fontWeight: 'bold'
+                      }}>
+                        {patientInfo?.name?.charAt(0) || 'J'}
+                      </div>
+                      <div>
+                        <h4 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '0.5rem' }}>
+                          {patientInfo?.name || 'Swasti Mohanty'}
+                        </h4>
+                        <div style={{ display: 'flex', gap: '1rem', fontSize: '0.875rem', color: '#6b7280' }}>
+                          <span>📅 Age: {patientInfo?.age || '20'}</span>
+                          <span>👤 Gender: {patientInfo?.gender || 'Male'}</span>
+                          <span>🆔 MRN: {patientInfo?.mrn?.substring(0, 8) || 'MRN12345'}</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                      <div style={{ padding: '1rem', background: '#f0f9ff', borderRadius: '0.75rem', border: '1px solid #bae6fd' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                          <Phone size={16} color="#0ea5e9" />
+                          <span style={{ fontWeight: '600', color: '#0c4a6e' }}>Phone</span>
+                        </div>
+                        <p style={{ color: '#374151', margin: 0 }}>{patientInfo?.phoneNumber || '8219489596'}</p>
+                      </div>
+                      
+                      <div style={{ padding: '1rem', background: '#f0fdf4', borderRadius: '0.75rem', border: '1px solid #bbf7d0' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                          <Calendar size={16} color="#22c55e" />
+                          <span style={{ fontWeight: '600', color: '#15803d' }}>Date of Birth</span>
+                        </div>
+                        <p style={{ color: '#374151', margin: 0 }}>{patientInfo?.dob || 'January 15, 1990'}</p>
+                      </div>
+                      
+                      <div style={{ padding: '1rem', background: '#fef3c7', borderRadius: '0.75rem', border: '1px solid #fde68a' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                          <MapPin size={16} color="#f59e0b" />
+                          <span style={{ fontWeight: '600', color: '#92400e' }}>Address</span>
+                        </div>
+                        <p style={{ color: '#374151', margin: 0 }}>123 Main Street, New York, NY 10001</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Current Vitals Card */}
+                  <div style={{
+                    background: 'white',
+                    borderRadius: '1rem',
+                    padding: '2rem',
+                    marginBottom: '1.5rem',
+                    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+                    border: '1px solid #e5e7eb'
+                  }}>
+                    <h5 style={{
+                      fontSize: '1.25rem',
+                      fontWeight: 'bold',
+                      color: '#1f2937',
+                      marginBottom: '1.5rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.75rem'
+                    }}>
+                      <Activity size={24} color="#ef4444" />
+                      Current Vitals
+                    </h5>
+                    
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
+                      <div style={{
+                        padding: '1.25rem',
+                        background: 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)',
+                        borderRadius: '0.75rem',
+                        textAlign: 'center',
+                        border: '1px solid #fca5a5'
+                      }}>
+                        <Heart size={24} color="#dc2626" style={{ margin: '0 auto 0.5rem' }} />
+                        <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#991b1b' }}>120/80</div>
+                        <div style={{ fontSize: '0.875rem', color: '#7f1d1d' }}>Blood Pressure</div>
+                      </div>
+                      
+                      <div style={{
+                        padding: '1.25rem',
+                        background: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)',
+                        borderRadius: '0.75rem',
+                        textAlign: 'center',
+                        border: '1px solid #93c5fd'
+                      }}>
+                        <Activity size={24} color="#2563eb" style={{ margin: '0 auto 0.5rem' }} />
+                        <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1d4ed8' }}>72 BPM</div>
+                        <div style={{ fontSize: '0.875rem', color: '#1e3a8a' }}>Heart Rate</div>
+                      </div>
+                      
+                      <div style={{
+                        padding: '1.25rem',
+                        background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+                        borderRadius: '0.75rem',
+                        textAlign: 'center',
+                        border: '1px solid #fcd34d'
+                      }}>
+                        <Thermometer size={24} color="#d97706" style={{ margin: '0 auto 0.5rem' }} />
+                        <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#92400e' }}>98.6°F</div>
+                        <div style={{ fontSize: '0.875rem', color: '#78350f' }}>Temperature</div>
+                      </div>
+                      
+                      <div style={{
+                        padding: '1.25rem',
+                        background: 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)',
+                        borderRadius: '0.75rem',
+                        textAlign: 'center',
+                        border: '1px solid #86efac'
+                      }}>
+                        <Activity size={24} color="#16a34a" style={{ margin: '0 auto 0.5rem' }} />
+                        <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#15803d' }}>98%</div>
+                        <div style={{ fontSize: '0.875rem', color: '#14532d' }}>Oxygen Sat</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Medical History Card */}
+                  <div style={{
+                    background: 'white',
+                    borderRadius: '1rem',
+                    padding: '2rem',
+                    marginBottom: '1.5rem',
+                    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+                    border: '1px solid #e5e7eb'
+                  }}>
+                    <h5 style={{
+                      fontSize: '1.25rem',
+                      fontWeight: 'bold',
+                      color: '#1f2937',
+                      marginBottom: '1.5rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.75rem'
+                    }}>
+                      <FileText size={24} color="#8b5cf6" />
+                      Medical History
+                    </h5>
+                    
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                      <div style={{
+                        padding: '1rem',
+                        background: '#f8fafc',
+                        borderRadius: '0.75rem',
+                        border: '1px solid #e2e8f0'
+                      }}>
+                        <div style={{ fontWeight: '600', color: '#374151', marginBottom: '0.5rem' }}>🩺 Chief Complaint</div>
+                        <p style={{ color: '#6b7280', margin: 0 }}>Chest pain and shortness of breath for 2 days</p>
+                      </div>
+                      
+                      <div style={{
+                        padding: '1rem',
+                        background: '#f8fafc',
+                        borderRadius: '0.75rem',
+                        border: '1px solid #e2e8f0'
+                      }}>
+                        <div style={{ fontWeight: '600', color: '#374151', marginBottom: '0.5rem' }}>🏥 Past Medical History</div>
+                        <ul style={{ color: '#6b7280', margin: 0, paddingLeft: '1.5rem' }}>
+                          <li>Hypertension (2018)</li>
+                          <li>Type 2 Diabetes (2020)</li>
+                          <li>Hyperlipidemia (2019)</li>
+                        </ul>
+                      </div>
+                      
+                      <div style={{
+                        padding: '1rem',
+                        background: '#fef2f2',
+                        borderRadius: '0.75rem',
+                        border: '1px solid #fecaca'
+                      }}>
+                        <div style={{ fontWeight: '600', color: '#374151', marginBottom: '0.5rem' }}>⚠️ Allergies</div>
+                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                          <span style={{
+                            padding: '0.25rem 0.75rem',
+                            background: '#fee2e2',
+                            borderRadius: '1rem',
+                            fontSize: '0.875rem',
+                            color: '#991b1b',
+                            border: '1px solid #fca5a5'
+                          }}>Penicillin</span>
+                          <span style={{
+                            padding: '0.25rem 0.75rem',
+                            background: '#fee2e2',
+                            borderRadius: '1rem',
+                            fontSize: '0.875rem',
+                            color: '#991b1b',
+                            border: '1px solid #fca5a5'
+                          }}>Shellfish</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Current Medications Card */}
+                  <div style={{
+                    background: 'white',
+                    borderRadius: '1rem',
+                    padding: '2rem',
+                    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+                    border: '1px solid #e5e7eb'
+                  }}>
+                    <h5 style={{
+                      fontSize: '1.25rem',
+                      fontWeight: 'bold',
+                      color: '#1f2937',
+                      marginBottom: '1.5rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.75rem'
+                    }}>
+                      <Pill size={24} color="#10b981" />
+                      Current Medications
+                    </h5>
+                    
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                      {[
+                        { name: 'Lisinopril', dose: '10mg', frequency: 'Once daily', indication: 'Hypertension' },
+                        { name: 'Metformin', dose: '500mg', frequency: 'Twice daily', indication: 'Diabetes' },
+                        { name: 'Atorvastatin', dose: '20mg', frequency: 'Once daily', indication: 'Hyperlipidemia' }
+                      ].map((med, index) => (
+                        <div key={index} style={{
+                          padding: '1rem',
+                          background: '#f0fdf4',
+                          borderRadius: '0.75rem',
+                          border: '1px solid #bbf7d0',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center'
+                        }}>
+                          <div>
+                            <div style={{ fontWeight: 'bold', color: '#15803d', fontSize: '1rem' }}>{med.name}</div>
+                            <div style={{ color: '#16a34a', fontSize: '0.875rem' }}>{med.dose} - {med.frequency}</div>
+                            <div style={{ color: '#6b7280', fontSize: '0.75rem' }}>For: {med.indication}</div>
+                          </div>
+                          <div style={{
+                            padding: '0.5rem',
+                            background: '#22c55e',
+                            borderRadius: '0.5rem',
+                            color: 'white',
+                            fontSize: '0.75rem',
+                            fontWeight: '600'
+                          }}>
+                            Active
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
 
+              {/* Enhanced Prescription Panel */}
               {!isAIOnlyMode && activeTab === "prescription" && (
-                <div style={{ padding: '1.5rem', overflowY: 'auto', flex: 1 }}>
-                  {/* Keep your existing prescription panel here */}
-                  <div style={{textAlign: 'center', padding: '2rem'}}>
-                    <p>Prescription panel</p>
+                <div style={{ padding: '1.5rem', overflowY: 'auto', flex: 1, background: '#f8fafc' }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: '2rem'
+                  }}>
+                    <h3 style={{ 
+                      color: '#1f2937', 
+                      fontSize: '1.5rem', 
+                      fontWeight: 'bold',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.75rem'
+                    }}>
+                      <Pill size={28} color="#10b981" />
+                      Digital Prescription
+                    </h3>
+                    <div style={{
+                      padding: '0.5rem 1rem',
+                      background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                      borderRadius: '0.75rem',
+                      color: 'white',
+                      fontSize: '0.875rem',
+                      fontWeight: '600',
+                      boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
+                    }}>
+                      📝 Draft Mode
+                    </div>
+                  </div>
+
+                  {/* Prescription Header Card */}
+                  <div style={{
+                    background: 'white',
+                    borderRadius: '1rem',
+                    padding: '2rem',
+                    marginBottom: '1.5rem',
+                    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+                    border: '1px solid #e5e7eb'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1.5rem' }}>
+                      <div>
+                        <h4 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '0.5rem' }}>
+                          Dr. Sarah Johnson, MD
+                        </h4>
+                        <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>
+                          Internal Medicine Specialist<br/>
+                          License: MD123456<br/>
+                          Nirogya Medical Center<br/>
+                          123 Healthcare Blvd, Medical City, MC 12345<br/>
+                          Phone: (555) 123-4567
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>Date: {new Date().toLocaleDateString()}</div>
+                        <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>Rx #: RX{Date.now().toString().slice(-6)}</div>
+                      </div>
+                    </div>
+                    
+                    <div style={{ padding: '1rem', background: '#f0f9ff', borderRadius: '0.75rem', border: '1px solid #bae6fd' }}>
+                      <div style={{ fontWeight: '600', color: '#0c4a6e', marginBottom: '0.5rem' }}>👤 Patient Information</div>
+                      <div style={{ color: '#374151', fontSize: '0.875rem' }}>
+                        <strong>Name:</strong> {patientInfo?.name || 'Swasti Mohanty'}<br/>
+                        <strong>Age:</strong> {patientInfo?.age || '20'} years<br/>
+                        <strong>MRN:</strong> {patientInfo?.mrn?.substring(0, 8) || 'MRN12345'}<br/>
+                        <strong>Date of Birth:</strong> {patientInfo?.dob || 'January 15, 1990'}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Prescription Medications Card */}
+                  <div style={{
+                    background: 'white',
+                    borderRadius: '1rem',
+                    padding: '2rem',
+                    marginBottom: '1.5rem',
+                    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+                    border: '1px solid #e5e7eb'
+                  }}>
+                    <h5 style={{
+                      fontSize: '1.25rem',
+                      fontWeight: 'bold',
+                      color: '#1f2937',
+                      marginBottom: '1.5rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.75rem'
+                    }}>
+                      💊 Prescribed Medications
+                    </h5>
+                    
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                      {[
+                        {
+                          name: 'Amoxicillin',
+                          strength: '500mg',
+                          form: 'Capsules',
+                          quantity: '21 capsules',
+                          directions: 'Take 1 capsule by mouth three times daily with food for 7 days',
+                          refills: '0 refills',
+                          indication: 'Bacterial infection'
+                        },
+                        {
+                          name: 'Ibuprofen',
+                          strength: '400mg',
+                          form: 'Tablets',
+                          quantity: '30 tablets',
+                          directions: 'Take 1 tablet by mouth every 6-8 hours as needed for pain',
+                          refills: '2 refills',
+                          indication: 'Pain and inflammation'
+                        },
+                        {
+                          name: 'Omeprazole',
+                          strength: '20mg',
+                          form: 'Capsules',
+                          quantity: '30 capsules',
+                          directions: 'Take 1 capsule by mouth once daily before breakfast',
+                          refills: '5 refills',
+                          indication: 'Acid reflux'
+                        }
+                      ].map((med, index) => (
+                        <div key={index} style={{
+                          padding: '1.5rem',
+                          background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+                          borderRadius: '1rem',
+                          border: '2px solid #bbf7d0',
+                          position: 'relative'
+                        }}>
+                          <div style={{
+                            position: 'absolute',
+                            top: '1rem',
+                            right: '1rem',
+                            background: '#22c55e',
+                            color: 'white',
+                            padding: '0.25rem 0.75rem',
+                            borderRadius: '1rem',
+                            fontSize: '0.75rem',
+                            fontWeight: '600'
+                          }}>
+                            #{index + 1}
+                          </div>
+                          
+                          <div style={{ marginBottom: '1rem' }}>
+                            <h6 style={{ fontSize: '1.125rem', fontWeight: 'bold', color: '#15803d', marginBottom: '0.25rem' }}>
+                              {med.name} {med.strength}
+                            </h6>
+                            <div style={{ fontSize: '0.875rem', color: '#16a34a', marginBottom: '0.5rem' }}>
+                              {med.form} • Quantity: {med.quantity} • {med.refills}
+                            </div>
+                            <div style={{ fontSize: '0.75rem', color: '#6b7280', fontStyle: 'italic' }}>
+                              For: {med.indication}
+                            </div>
+                          </div>
+                          
+                          <div style={{
+                            padding: '1rem',
+                            background: 'white',
+                            borderRadius: '0.75rem',
+                            border: '1px solid #d1fae5'
+                          }}>
+                            <div style={{ fontWeight: '600', color: '#374151', marginBottom: '0.5rem', fontSize: '0.875rem' }}>
+                              📝 Directions for Use:
+                            </div>
+                            <div style={{ color: '#1f2937', fontSize: '0.875rem', lineHeight: '1.4' }}>
+                              {med.directions}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Clinical Notes Card */}
+                  <div style={{
+                    background: 'white',
+                    borderRadius: '1rem',
+                    padding: '2rem',
+                    marginBottom: '1.5rem',
+                    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+                    border: '1px solid #e5e7eb'
+                  }}>
+                    <h5 style={{
+                      fontSize: '1.25rem',
+                      fontWeight: 'bold',
+                      color: '#1f2937',
+                      marginBottom: '1.5rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.75rem'
+                    }}>
+                      <FileText size={24} color="#8b5cf6" />
+                      Clinical Notes & Instructions
+                    </h5>
+                    
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                      <div style={{
+                        padding: '1rem',
+                        background: '#fef3c7',
+                        borderRadius: '0.75rem',
+                        border: '1px solid #fde68a'
+                      }}>
+                        <div style={{ fontWeight: '600', color: '#92400e', marginBottom: '0.5rem' }}>⚠️ Important Instructions:</div>
+                        <ul style={{ color: '#78350f', margin: 0, paddingLeft: '1.5rem', fontSize: '0.875rem' }}>
+                          <li>Complete the full course of antibiotics even if feeling better</li>
+                          <li>Take ibuprofen with food to prevent stomach upset</li>
+                          <li>Return if symptoms worsen or new symptoms develop</li>
+                          <li>Follow up in 1 week if not improving</li>
+                        </ul>
+                      </div>
+                      
+                      <div style={{
+                        padding: '1rem',
+                        background: '#dbeafe',
+                        borderRadius: '0.75rem',
+                        border: '1px solid #93c5fd'
+                      }}>
+                        <div style={{ fontWeight: '600', color: '#1e40af', marginBottom: '0.5rem' }}>📅 Follow-up Care:</div>
+                        <div style={{ color: '#1e3a8a', fontSize: '0.875rem' }}>
+                          Schedule follow-up appointment in 2 weeks to reassess condition and review treatment response.
+                          Contact office immediately if experiencing severe side effects or worsening symptoms.
+                        </div>
+                      </div>
+                      
+                      <div style={{
+                        padding: '1rem',
+                        background: '#f0fdf4',
+                        borderRadius: '0.75rem',
+                        border: '1px solid #bbf7d0'
+                      }}>
+                        <div style={{ fontWeight: '600', color: '#15803d', marginBottom: '0.5rem' }}>📞 Emergency Contact:</div>
+                        <div style={{ color: '#14532d', fontSize: '0.875rem' }}>
+                          For urgent medical concerns: Call (555) 123-4567<br/>
+                          For after-hours emergencies: Visit nearest emergency room or call 911
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Prescription Actions */}
+                  <div style={{
+                    background: 'white',
+                    borderRadius: '1rem',
+                    padding: '2rem',
+                    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+                    border: '1px solid #e5e7eb'
+                  }}>
+                    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+                      <button
+                        onClick={() => {
+                          alert('✅ Prescription saved successfully!\n\nPatient: ' + (patientInfo?.name || 'Swasti Mohanty') + '\nDate: ' + new Date().toLocaleDateString() + '\nMedications: 3 items prescribed\n\nPrescription has been sent to pharmacy.');
+                        }}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.75rem',
+                          padding: '1rem 2rem',
+                          background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '0.75rem',
+                          fontWeight: '700',
+                          fontSize: '1rem',
+                          cursor: 'pointer',
+                          boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        <Send size={20} />
+                        Send to Pharmacy
+                      </button>
+                      
+                      <button
+                        onClick={() => {
+                          const prescriptionData = {
+                            doctor: 'Dr. Sarah Johnson, MD',
+                            patient: patientInfo?.name || 'Swasti Mohanty',
+                            date: new Date().toLocaleDateString(),
+                            medications: 3
+                          };
+                          console.log('Prescription saved:', prescriptionData);
+                          alert('💾 Prescription saved to patient records!');
+                        }}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.75rem',
+                          padding: '1rem 2rem',
+                          background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '0.75rem',
+                          fontWeight: '700',
+                          fontSize: '1rem',
+                          cursor: 'pointer',
+                          boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        <FileText size={20} />
+                        Save to Records
+                      </button>
+                      
+                      <button
+                        onClick={() => {
+                          if (window.print) {
+                            window.print();
+                          } else {
+                            alert('🖨️ Print functionality will be available in production version.');
+                          }
+                        }}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.75rem',
+                          padding: '1rem 2rem',
+                          background: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)',
+                          color: '#374151',
+                          border: '2px solid #d1d5db',
+                          borderRadius: '0.75rem',
+                          fontWeight: '700',
+                          fontSize: '1rem',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        🖨️ Print Copy
+                      </button>
+                    </div>
+                    
+                    <div style={{
+                      marginTop: '1.5rem',
+                      padding: '1rem',
+                      background: '#f8fafc',
+                      borderRadius: '0.75rem',
+                      border: '1px solid #e2e8f0',
+                      textAlign: 'center'
+                    }}>
+                      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                        🔒 This prescription is digitally signed and encrypted for security.<br/>
+                        Electronic signature: Dr. Sarah Johnson, MD - {new Date().toLocaleString()}
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}

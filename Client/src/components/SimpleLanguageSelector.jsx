@@ -31,44 +31,95 @@ export default function SimpleLanguageSelector({
   };
 
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
-      <Languages size={16} className="text-white" />
-      <span className="text-white text-sm font-medium">{label}:</span>
+    <div className={`flex items-center gap-3 ${className}`} style={{
+      padding: '0.5rem 1rem',
+      background: '#f8fafc',
+      borderRadius: '0.75rem',
+      border: '1px solid #e2e8f0'
+    }}>
+      <Languages size={18} style={{ color: '#3b82f6' }} />
+      <span style={{ 
+        color: '#374151', 
+        fontSize: '0.875rem', 
+        fontWeight: '600',
+        minWidth: 'fit-content'
+      }}>{label}:</span>
       <select
         value={selectedLanguage}
         onChange={(e) => {
           console.log('Language selector changed to:', e.target.value);
           onLanguageChange?.(e.target.value);
         }}
-        className="bg-white/10 border border-white/30 rounded-lg px-3 py-1 text-sm focus:outline-none focus:border-white/50 min-w-36 text-white backdrop-blur-sm"
         style={{ 
-          backgroundColor: 'rgba(255,255,255,0.1)', 
-          color: 'white',
-          fontSize: '0.875rem'
+          background: 'white',
+          border: '1px solid #d1d5db',
+          borderRadius: '0.5rem',
+          padding: '0.5rem 0.75rem',
+          fontSize: '0.875rem',
+          fontWeight: '500',
+          color: '#374151',
+          minWidth: '150px',
+          cursor: 'pointer',
+          outline: 'none',
+          boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
+        }}
+        onFocus={(e) => {
+          e.target.style.borderColor = '#3b82f6';
+          e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+        }}
+        onBlur={(e) => {
+          e.target.style.borderColor = '#d1d5db';
+          e.target.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.05)';
         }}
       >
         {LANGUAGES.map((lang) => (
-          <option key={lang.code} value={lang.code} style={{ color: '#1f2937', backgroundColor: 'white' }}>
+          <option key={lang.code} value={lang.code} style={{ 
+            color: '#374151', 
+            backgroundColor: 'white',
+            padding: '0.5rem'
+          }}>
             {lang.flag} {lang.name}
           </option>
         ))}
       </select>
       
       {selectedLanguage !== 'off' && (
-        <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs border ${
-          error 
-            ? 'bg-red-500/20 text-red-100 border-red-400/30' 
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          padding: '0.375rem 0.75rem',
+          borderRadius: '1rem',
+          fontSize: '0.75rem',
+          fontWeight: '600',
+          border: '1px solid',
+          backgroundColor: error 
+            ? '#fef2f2' 
             : isListening 
-              ? 'bg-green-500/20 text-green-100 border-green-400/30'
-              : 'bg-blue-500/20 text-blue-100 border-blue-400/30'
-        }`}>
-          <div className={`w-2 h-2 rounded-full ${
-            error 
-              ? 'bg-red-400' 
+              ? '#f0fdf4'
+              : '#eff6ff',
+          color: error 
+            ? '#dc2626' 
+            : isListening 
+              ? '#15803d'
+              : '#1d4ed8',
+          borderColor: error 
+            ? '#fecaca' 
+            : isListening 
+              ? '#bbf7d0'
+              : '#bfdbfe'
+        }}>
+          <div style={{
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            backgroundColor: error 
+              ? '#dc2626' 
               : isListening 
-                ? 'bg-green-400 animate-pulse'
-                : 'bg-blue-400'
-          }`}></div>
+                ? '#15803d'
+                : '#1d4ed8',
+            animation: isListening ? 'pulse 2s infinite' : 'none'
+          }}></div>
           {error ? 'Error' : isListening ? 'Listening' : 'Ready'}
         </div>
       )}

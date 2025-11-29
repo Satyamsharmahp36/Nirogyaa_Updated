@@ -1341,34 +1341,32 @@ const getAIVoiceResponseWithRetry = async (userMessage, retryCount = 0) => {
 
   return (
     <div className="room-container">
-      {/* Enhanced Header */}
+      {/* Professional Header */}
       <div className="room-header" style={{ 
-        background: isAIOnlyMode 
-          ? 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)'
-          : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
+        background: 'white',
+        borderBottom: '1px solid #e5e7eb',
         padding: '1rem 2rem',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <h2 className="room-title" style={{ 
-                color: 'white', 
+                color: '#1f2937', 
                 margin: 0, 
                 fontSize: '1.5rem', 
-                fontWeight: 'bold',
-                textShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                fontWeight: 'bold'
               }}>
-                {isAIOnlyMode ? "🤖 AI Voice Agent Room" : "🏥 Nirogya Consultation Room"}: {roomId}
+                <span style={{ color: '#3b82f6' }}>Nirogya</span> {isAIOnlyMode ? "AI Consultation" : "Medical Room"} • {roomId}
               </h2>
               <div className={`status-indicator ${connectionStatus}`} style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem',
-                background: 'rgba(255,255,255,0.2)',
+                background: connectionStatus === "connected" ? '#f0fdf4' : '#fef3c7',
                 padding: '0.5rem 1rem',
-                borderRadius: '1rem',
-                backdropFilter: 'blur(10px)'
+                borderRadius: '0.75rem',
+                border: `1px solid ${connectionStatus === "connected" ? '#bbf7d0' : '#fde68a'}`
               }}>
                 <div className={`status-dot ${connectionStatus}`} style={{
                   width: '8px',
@@ -1376,7 +1374,7 @@ const getAIVoiceResponseWithRetry = async (userMessage, retryCount = 0) => {
                   borderRadius: '50%',
                   backgroundColor: connectionStatus === "connected" ? '#10b981' : '#f59e0b'
                 }} />
-                <span style={{ color: 'white', fontSize: '0.875rem', fontWeight: '600' }}>
+                <span style={{ color: connectionStatus === "connected" ? '#15803d' : '#92400e', fontSize: '0.875rem', fontWeight: '600' }}>
                   {connectionStatus === "connected" ? "Connected" : "Connecting..."}
                 </span>
               </div>
@@ -1384,56 +1382,50 @@ const getAIVoiceResponseWithRetry = async (userMessage, retryCount = 0) => {
             
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
               <div style={{ 
-                background: 'rgba(255,255,255,0.25)', 
+                background: '#f8fafc', 
                 padding: '0.5rem 1rem', 
-                borderRadius: '1rem', 
-                color: 'white', 
+                borderRadius: '0.75rem', 
+                color: '#475569', 
                 fontSize: '0.875rem', 
                 fontWeight: '600',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255,255,255,0.2)'
+                border: '1px solid #e2e8f0'
               }}>
                 👥 {remoteUsers.length + 1 + (isAIOnlyMode && aiVoiceActive ? 1 : 0)} participants
               </div>
               <div style={{ 
-                background: 'rgba(255,255,255,0.25)', 
+                background: '#f8fafc', 
                 padding: '0.5rem 1rem', 
-                borderRadius: '1rem', 
-                color: 'white', 
+                borderRadius: '0.75rem', 
+                color: '#475569', 
                 fontSize: '0.875rem', 
                 fontWeight: '600',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255,255,255,0.2)'
+                border: '1px solid #e2e8f0'
               }}>
                 ⏱️ {sessionDuration}
               </div>
               {isAIOnlyMode ? (
                 <div style={{ 
-                  background: aiVoiceActive ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)', 
+                  background: aiVoiceActive ? '#f0fdf4' : '#fef2f2', 
                   padding: '0.5rem 1rem', 
-                  borderRadius: '1rem', 
-                  color: 'white', 
+                  borderRadius: '0.75rem', 
+                  color: aiVoiceActive ? '#15803d' : '#dc2626', 
                   fontSize: '0.875rem', 
                   fontWeight: '600',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255,255,255,0.3)'
+                  border: `1px solid ${aiVoiceActive ? '#bbf7d0' : '#fecaca'}`
                 }}>
-                  🤖 {aiVoiceActive ? 'AI ACTIVE' : 'AI INACTIVE'}
+                  🤖 {aiVoiceActive ? 'AI Active' : 'AI Inactive'}
                 </div>
               ) : (
                 <div style={{ 
-                  background: isDoctor 
-                    ? 'rgba(59, 130, 246, 0.3)' 
-                    : 'rgba(16, 185, 129, 0.3)', 
+                  background: isDoctor ? '#eff6ff' : '#f0fdf4', 
                   padding: '0.5rem 1rem', 
-                  borderRadius: '1rem', 
-                  color: 'white', 
+                  borderRadius: '0.75rem', 
+                  color: isDoctor ? '#1d4ed8' : '#15803d', 
                   fontSize: '0.875rem', 
                   fontWeight: '600',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255,255,255,0.3)'
+                  border: `1px solid ${isDoctor ? '#bfdbfe' : '#bbf7d0'}`
                 }}>
-                  {isDoctor ? "👨‍⚕️ DOCTOR" : "👤 PATIENT"}
+                  {isDoctor ? "👨‍⚕️ Doctor" : "👤 Patient"}
                 </div>
               )}
               
@@ -1449,7 +1441,14 @@ const getAIVoiceResponseWithRetry = async (userMessage, retryCount = 0) => {
               
               {/* Translation Controls */}
               {myPreferredLanguage !== 'off' && (
-                <div style={{ display: 'flex', gap: '0.625rem' }}>
+                <div style={{ 
+                  display: 'flex', 
+                  gap: '0.75rem',
+                  padding: '0.5rem',
+                  background: '#f8fafc',
+                  borderRadius: '0.75rem',
+                  border: '1px solid #e2e8f0'
+                }}>
                   <button
                     onClick={isListening ? stopListening : startListening}
                     disabled={!!translationError}
@@ -1458,23 +1457,18 @@ const getAIVoiceResponseWithRetry = async (userMessage, retryCount = 0) => {
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: '0.5rem',
-                      padding: '0.625rem 1.25rem',
-                      minWidth: '120px',
-                      height: '40px',
-                      background: isListening 
-                        ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
-                        : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                      padding: '0.75rem 1.5rem',
+                      minWidth: '130px',
+                      height: '44px',
+                      background: isListening ? '#dc2626' : '#10b981',
                       border: 'none',
-                      borderRadius: '10px',
+                      borderRadius: '0.625rem',
                       color: 'white',
-                      fontSize: '0.8rem',
+                      fontSize: '0.875rem',
                       fontWeight: '600',
                       cursor: translationError ? 'not-allowed' : 'pointer',
-                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      boxShadow: isListening 
-                        ? '0 3px 15px rgba(239, 68, 68, 0.4)'
-                        : '0 3px 15px rgba(16, 185, 129, 0.4)',
-                      backdropFilter: 'blur(10px)',
+                      transition: 'all 0.2s ease',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
                       opacity: translationError ? 0.5 : 1,
                       transform: 'translateY(0)'
                     }}
@@ -1482,20 +1476,18 @@ const getAIVoiceResponseWithRetry = async (userMessage, retryCount = 0) => {
                       if (!translationError) {
                         e.target.style.transform = 'translateY(-1px)';
                         e.target.style.boxShadow = isListening 
-                          ? '0 4px 20px rgba(239, 68, 68, 0.5)'
-                          : '0 4px 20px rgba(16, 185, 129, 0.5)';
+                          ? '0 4px 12px rgba(220, 38, 38, 0.4)'
+                          : '0 4px 12px rgba(16, 185, 129, 0.4)';
                       }
                     }}
                     onMouseLeave={(e) => {
                       if (!translationError) {
                         e.target.style.transform = 'translateY(0)';
-                        e.target.style.boxShadow = isListening 
-                          ? '0 3px 15px rgba(239, 68, 68, 0.4)'
-                          : '0 3px 15px rgba(16, 185, 129, 0.4)';
+                        e.target.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
                       }
                     }}
                   >
-                    {isListening ? 'Stop' : 'Listen'}
+                    🎤 {isListening ? 'Stop' : 'Listen'}
                   </button>
                   
                   <button
@@ -1505,39 +1497,32 @@ const getAIVoiceResponseWithRetry = async (userMessage, retryCount = 0) => {
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: '0.5rem',
-                      padding: '0.625rem 1.25rem',
-                      minWidth: '120px',
-                      height: '40px',
-                      background: showCaptions 
-                        ? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'
-                        : 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)',
+                      padding: '0.75rem 1.5rem',
+                      minWidth: '130px',
+                      height: '44px',
+                      background: showCaptions ? '#3b82f6' : '#6b7280',
                       border: 'none',
-                      borderRadius: '10px',
+                      borderRadius: '0.625rem',
                       color: 'white',
-                      fontSize: '0.8rem',
+                      fontSize: '0.875rem',
                       fontWeight: '600',
                       cursor: 'pointer',
-                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      boxShadow: showCaptions 
-                        ? '0 3px 15px rgba(59, 130, 246, 0.4)'
-                        : '0 3px 15px rgba(107, 114, 128, 0.4)',
-                      backdropFilter: 'blur(10px)',
+                      transition: 'all 0.2s ease',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
                       transform: 'translateY(0)'
                     }}
                     onMouseEnter={(e) => {
                       e.target.style.transform = 'translateY(-1px)';
                       e.target.style.boxShadow = showCaptions 
-                        ? '0 4px 20px rgba(59, 130, 246, 0.5)'
-                        : '0 4px 20px rgba(107, 114, 128, 0.5)';
+                        ? '0 4px 12px rgba(59, 130, 246, 0.4)'
+                        : '0 4px 12px rgba(107, 114, 128, 0.4)';
                     }}
                     onMouseLeave={(e) => {
                       e.target.style.transform = 'translateY(0)';
-                      e.target.style.boxShadow = showCaptions 
-                        ? '0 3px 15px rgba(59, 130, 246, 0.4)'
-                        : '0 3px 15px rgba(107, 114, 128, 0.4)';
+                      e.target.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
                     }}
                   >
-                    {showCaptions ? 'Hide CC' : 'Show CC'}
+                    💬 {showCaptions ? 'Hide CC' : 'Show CC'}
                   </button>
                 </div>
               )}
@@ -1562,20 +1547,18 @@ const getAIVoiceResponseWithRetry = async (userMessage, retryCount = 0) => {
                   padding: '0.875rem 1.75rem',
                   minWidth: '160px',
                   height: '48px',
-                  background: isAIBotActive 
-                    ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
-                    : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  background: isAIBotActive ? '#dc2626' : '#10b981',
                   border: 'none',
-                  borderRadius: '12px',
+                  borderRadius: '0.75rem',
                   color: 'white',
                   fontSize: '0.875rem',
                   fontWeight: '600',
                   cursor: 'pointer',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  boxShadow: isAIBotActive 
-                    ? '0 4px 20px rgba(239, 68, 68, 0.4), 0 2px 8px rgba(0, 0, 0, 0.1)'
-                    : '0 4px 20px rgba(16, 185, 129, 0.4), 0 2px 8px rgba(0, 0, 0, 0.1)',
-                  backdropFilter: 'blur(10px)',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                  ':hover': {
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+                  },
                   transform: 'translateY(0)',
                   ':hover': {
                     transform: 'translateY(-2px)',
@@ -1621,20 +1604,18 @@ const getAIVoiceResponseWithRetry = async (userMessage, retryCount = 0) => {
                   padding: '0.875rem 1.75rem',
                   minWidth: '160px',
                   height: '48px',
-                  background: showDoctorPanel 
-                    ? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'
-                    : 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+                  background: showDoctorPanel ? '#1d4ed8' : '#3b82f6',
                   border: 'none',
-                  borderRadius: '12px',
+                  borderRadius: '0.75rem',
                   color: 'white',
                   fontSize: '0.875rem',
                   fontWeight: '600',
                   cursor: 'pointer',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  boxShadow: showDoctorPanel 
-                    ? '0 4px 20px rgba(59, 130, 246, 0.4), 0 2px 8px rgba(0, 0, 0, 0.1)'
-                    : '0 4px 20px rgba(99, 102, 241, 0.4), 0 2px 8px rgba(0, 0, 0, 0.1)',
-                  backdropFilter: 'blur(10px)',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                  ':hover': {
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+                  },
                   transform: 'translateY(0)'
                 }}
                 onMouseEnter={(e) => {
@@ -1973,16 +1954,16 @@ const getAIVoiceResponseWithRetry = async (userMessage, retryCount = 0) => {
             flex: '1',
             minWidth: '400px',
             background: 'white',
-            borderLeft: isAIOnlyMode ? '4px solid #8b5cf6' : '4px solid #3b82f6',
+            borderLeft: '1px solid #e5e7eb',
             display: 'flex',
             flexDirection: 'column',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
           }}>
             {/* Panel tabs */}
             <div style={{
               display: 'flex',
-              borderBottom: '2px solid #e5e7eb',
-              background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)'
+              borderBottom: '1px solid #e5e7eb',
+              background: '#f8fafc'
             }}>
               {isAIOnlyMode ? (
                 <>
@@ -2001,8 +1982,8 @@ const getAIVoiceResponseWithRetry = async (userMessage, retryCount = 0) => {
                       cursor: 'pointer',
                       border: 'none',
                       background: activeTab === "chat" ? 'white' : 'transparent',
-                      color: activeTab === "chat" ? '#8b5cf6' : '#6b7280',
-                      borderBottom: activeTab === "chat" ? '4px solid #8b5cf6' : 'none'
+                      color: activeTab === "chat" ? '#3b82f6' : '#6b7280',
+                      borderBottom: activeTab === "chat" ? '2px solid #3b82f6' : 'none'
                     }}
                   >
                     <MessageSquare size={20} />
@@ -2023,8 +2004,8 @@ const getAIVoiceResponseWithRetry = async (userMessage, retryCount = 0) => {
                       cursor: 'pointer',
                       border: 'none',
                       background: activeTab === "transcript" ? 'white' : 'transparent',
-                      color: activeTab === "transcript" ? '#8b5cf6' : '#6b7280',
-                      borderBottom: activeTab === "transcript" ? '4px solid #8b5cf6' : 'none'
+                      color: activeTab === "transcript" ? '#3b82f6' : '#6b7280',
+                      borderBottom: activeTab === "transcript" ? '2px solid #3b82f6' : 'none'
                     }}
                   >
                     <FileAudio size={20} />
@@ -2961,35 +2942,43 @@ const getAIVoiceResponseWithRetry = async (userMessage, retryCount = 0) => {
       </div>
 
       {/* Enhanced Controls */}
-      <div className="controls-container" style={{ 
-        background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+      {/* Bottom Controls */}
+      <div style={{
+        background: 'white',
         padding: '1.5rem 2rem',
-        borderTop: '4px solid #e2e8f0',
-        boxShadow: '0 -4px 12px rgba(0,0,0,0.1)'
+        borderTop: '1px solid #e5e7eb',
+        boxShadow: '0 -1px 3px rgba(0, 0, 0, 0.1)'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1.5rem' }}>
           <button
             onClick={toggleAudio}
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: '0.75rem',
-              padding: '1rem 2rem',
-              borderRadius: '1rem',
-              fontWeight: 'bold',
-              fontSize: '1rem',
-              border: 'none',
+              padding: '0.875rem 1.75rem',
+              borderRadius: '0.75rem',
+              fontWeight: '600',
+              fontSize: '0.875rem',
+              border: isMuted ? 'none' : '1px solid #e5e7eb',
               cursor: 'pointer',
-              transition: 'all 0.2s',
-              background: isMuted 
-                ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' 
-                : 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)',
+              transition: 'all 0.2s ease',
+              background: isMuted ? '#dc2626' : 'white',
               color: isMuted ? 'white' : '#374151',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+              ':hover': {
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+              }
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
             }}
           >
             {isMuted ? <MicOff size={20} /> : <Mic size={20} />}
-            {isMuted ? " Unmute" : " Mute"}
+            {isMuted ? "Unmute" : "Mute"}
           </button>
           
           <button
@@ -2998,22 +2987,29 @@ const getAIVoiceResponseWithRetry = async (userMessage, retryCount = 0) => {
               display: 'flex',
               alignItems: 'center',
               gap: '0.75rem',
-              padding: '1rem 2rem',
-              borderRadius: '1rem',
-              fontWeight: 'bold',
-              fontSize: '1rem',
-              border: 'none',
+              padding: '0.875rem 1.75rem',
+              borderRadius: '0.75rem',
+              fontWeight: '600',
+              fontSize: '0.875rem',
+              border: !isVideoEnabled ? 'none' : '1px solid #e5e7eb',
               cursor: 'pointer',
-              transition: 'all 0.2s',
-              background: !isVideoEnabled 
-                ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' 
-                : 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)',
+              transition: 'all 0.2s ease',
+              background: !isVideoEnabled ? '#dc2626' : 'white',
               color: !isVideoEnabled ? 'white' : '#374151',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+              ':hover': {
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+              }
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
             }}
           >
             {isVideoEnabled ? <Video size={20} /> : <VideoOff size={20} />}
-            {isVideoEnabled ? " Stop Video" : " Start Video"}
+            {isVideoEnabled ? "Stop Video" : "Start Video"}
           </button>
           
           <button
@@ -3022,20 +3018,29 @@ const getAIVoiceResponseWithRetry = async (userMessage, retryCount = 0) => {
               display: 'flex',
               alignItems: 'center',
               gap: '0.75rem',
-              padding: '1rem 2rem',
-              borderRadius: '1rem',
-              fontWeight: 'bold',
-              fontSize: '1rem',
+              padding: '0.875rem 1.75rem',
+              borderRadius: '0.75rem',
+              fontWeight: '600',
+              fontSize: '0.875rem',
               border: 'none',
               cursor: 'pointer',
-              transition: 'all 0.2s',
-              background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+              transition: 'all 0.2s ease',
+              background: '#dc2626',
               color: 'white',
-              boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+              ':hover': {
+                boxShadow: '0 4px 12px rgba(220, 38, 38, 0.3)'
+              }
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.boxShadow = '0 4px 12px rgba(220, 38, 38, 0.3)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
             }}
           >
             <Phone size={20} />
-             End {isAIOnlyMode ? "Session" : "Consultation"}
+            End {isAIOnlyMode ? "Session" : "Consultation"}
           </button>
         </div>
       </div>
